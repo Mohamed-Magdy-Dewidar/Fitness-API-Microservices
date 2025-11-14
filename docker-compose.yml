@@ -1,0 +1,20 @@
+services:
+  api.gateway:
+    image: ${DOCKER_REGISTRY-}apigateway
+    build:
+      context: .
+      dockerfile: src/API.Gateway/Dockerfile
+
+  userprofileservice:
+    image: ${DOCKER_REGISTRY-}userprofileservice
+    build:
+      context: .
+      dockerfile: src/UserProfileService/Dockerfile
+
+
+  authenticationservice:
+    image: ${DOCKER_REGISTRY-}authenticationservice
+    build:
+      context: .
+      dockerfile: src/AuthenticationService/Dockerfile
+

@@ -1,0 +1,190 @@
+services:
+  fitness-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: fitness-Db 
+    ports:
+      - "1433:1433"
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Strong_password_123!"
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "Strong_password_123!", "-Q", "SELECT 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  fitness-mq:
+    image: rabbitmq:4-management
+    container_name: fitness-mq
+    hostname: fitness-mq
+    volumes:
+      - fitness-mq-data:/var/lib/rabbitmq
+      - fitness-mq-log:/var/log/rabbitmq
+    ports:
+      - "5672:5672"    
+      - "15672:15672"  
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    restart: unless-stopped
+
+
+  api.gateway:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+    ports:
+      - "8080"
+      - "8081"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+  userprofileservice:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+    ports:
+      - "8080"
+      - "8081"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
+  authenticationservice:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+    ports:
+      - "8080"
+      - "8081"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
+volumes:
+  fitness-mq-data:
+    driver: local
+  fitness-mq-log:
+    driver: local
+
+
+
+
+
+# services:
+#   fitness-db:
+#     image: mcr.microsoft.com/mssql/server:2022-latest
+#     container_name: fitness-Db 
+#     ports:
+#       - "1433:1433"
+#     environment:
+#       ACCEPT_EULA: "Y"
+#       SA_PASSWORD: "Strong_password_123!"
+#     healthcheck:
+#       test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "Strong_password_123!", "-Q", "SELECT 1"]
+#       interval: 10s
+#       timeout: 10s
+#       retries: 10
+#       start_period: 30s
+#     restart: unless-stopped
+
+#   fitness-mq:
+#     image: rabbitmq:4-management
+#     container_name: fitness-mq
+#     hostname: fitness-mq
+#     volumes:
+#       - fitness-mq-data:/var/lib/rabbitmq
+#       - fitness-mq-log:/var/log/rabbitmq
+#     ports:
+#       - "5672:5672"    
+#       - "15672:15672"  
+#     environment:
+#       RABBITMQ_DEFAULT_USER: guest
+#       RABBITMQ_DEFAULT_PASS: guest
+#     healthcheck:
+#       test: ["CMD", "rabbitmq-diagnostics", "ping"]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 10
+#       start_period: 10s
+#     restart: unless-stopped
+
+#   api.gateway:
+#     environment:
+#       - ASPNETCORE_ENVIRONMENT=Development
+#       - ASPNETCORE_HTTP_PORTS=8080
+#       - ASPNETCORE_HTTPS_PORTS=8081
+#     ports:
+#       - "8080"
+#       - "8081"
+#     depends_on:
+#       authenticationservice:
+#         condition: service_started
+#       userprofileservice:
+#         condition: service_started
+#     volumes:
+#       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+#       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+#       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+#       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
+#   authenticationservice:
+#     environment:
+#       - ASPNETCORE_ENVIRONMENT=Development
+#       - ASPNETCORE_HTTP_PORTS=8080
+#       - ASPNETCORE_HTTPS_PORTS=8081
+#       - RabbitMQ__Host=fitness-mq
+#     ports:
+#       - "8080"
+#       - "8081"
+#     depends_on:
+#       fitness-db:
+#         condition: service_healthy
+#       fitness-mq:
+#         condition: service_healthy
+#     volumes:
+#       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+#       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+#       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+#       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
+#   userprofileservice:
+#     environment:
+#       - ASPNETCORE_ENVIRONMENT=Development
+#       - ASPNETCORE_HTTP_PORTS=8080
+#       - ASPNETCORE_HTTPS_PORTS=8081
+#       - RabbitMQ__Host=fitness-mq
+#     ports:
+#       - "8080"
+#       - "8081"
+#     depends_on:
+#       fitness-db:
+#         condition: service_healthy
+#       fitness-mq:
+#         condition: service_healthy
+#     volumes:
+#       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+#       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+#       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+#       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
+# volumes:
+#   fitness-mq-data:
+#     driver: local
+#   fitness-mq-log:
+#     driver: local
+
+      
+
+

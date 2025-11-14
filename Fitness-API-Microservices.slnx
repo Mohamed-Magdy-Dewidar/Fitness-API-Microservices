@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/API.Gateway/API.Gateway.csproj" Id="22fab34b-5d4c-4810-b048-853a12b4f77a" />
+    <Project Path="src/AuthenticationService/AuthenticationService.csproj" />
+    <Project Path="src/Contracts/Contracts.csproj" />
+    <Project Path="src/Shared/Shared.csproj" />
+    <Project Path="src/UserProfileService/UserProfileService.csproj" />
+  </Folder>
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
+</Solution>
