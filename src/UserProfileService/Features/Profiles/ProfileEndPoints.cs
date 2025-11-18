@@ -206,17 +206,17 @@ public class ProfileEndPoints : ICarterModule
             if (string.IsNullOrEmpty(currentUserId))
                 return Results.Unauthorized();
 
-            var query = new DeleteUserProfile.Command(userId);
-            var result = await sender.Send(query);
+            var command = new DeleteUserProfile.Command(userId);
+            var result = await sender.Send(command);
 
             if (result.IsFailure)
                 return Results.NotFound(result.Error);
 
-            return Results.Ok(result.Value);
+            return Results.NoContent();
         })
         .WithName("DeleteUserProfileById")
         .Produces(StatusCodes.Status204NoContent)
-        .Produces<Error>(StatusCodes.Status400BadRequest)
+        .Produces<Error>(StatusCodes.Status404NotFound)
         .Produces(StatusCodes.Status401Unauthorized)
         .RequireAuthorization(policy => policy.RequireRole(Shared.ApplicationRoles.FitnessTrainerRole));
     }
