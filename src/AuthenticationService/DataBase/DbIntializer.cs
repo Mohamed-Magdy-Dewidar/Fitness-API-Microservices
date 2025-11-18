@@ -40,6 +40,7 @@ namespace AuthenticationService.DataBase
 
                     var user01 = new ApplicationUser()
                     {
+                        Id = Shared.SeedData.User01_Id,
                         Email = "mohamedMagdy@gmail.com",
                         PhoneNumber = "09123456789",
                         UserName = "mohamedMagdy",
@@ -47,6 +48,7 @@ namespace AuthenticationService.DataBase
                     };
                     var user02 = new ApplicationUser()
                     {
+                        Id = Shared.SeedData.User02_Id,
                         Email = "Omar@gmail.com",
                         PhoneNumber = "09123456789",
                         UserName = "OmarMohamed",
@@ -55,6 +57,7 @@ namespace AuthenticationService.DataBase
 
                     var user03 = new ApplicationUser()
                     {
+                        Id = Shared.SeedData.User03_Id,
                         Email = "Omarmohamed@gmail.com",
                         PhoneNumber = "09443456789",
                         UserName = "OmarMagdy",

@@ -80,6 +80,7 @@ public static class RegisterUser
                 {
                     UserId = user.Id,
                     Email = user.Email,
+                    UserName = request.UserName,
                     CreatedOnUtc = DateTime.UtcNow,
                 }, cancellationToken);
 
