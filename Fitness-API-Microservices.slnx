@@ -5,6 +5,7 @@
     <Project Path="src/Contracts/Contracts.csproj" />
     <Project Path="src/Shared/Shared.csproj" />
     <Project Path="src/UserProfileService/UserProfileService.csproj" />
+    <Project Path="src/WorkOutService/WorkOutService.csproj" Id="f4e4bc84-100e-4851-b3bc-85b716360cd2" />
   </Folder>
   <Project Path="docker-compose.dcproj">
     <Build />

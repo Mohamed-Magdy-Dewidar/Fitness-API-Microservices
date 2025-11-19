@@ -94,7 +94,7 @@ public static class CompleteUserProfile
                 profile.Weight,
                 profile.Height,
                 profile.PrimaryGoal,
-                profile.ActivityLevel,
+                profile.ActivityLevel ?? ActivityLevel.Beginner,
                 profile.CreatedOnUtc
             );
 

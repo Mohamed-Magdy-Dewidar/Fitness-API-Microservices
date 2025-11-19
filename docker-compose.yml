@@ -18,3 +18,10 @@ services:
       context: .
       dockerfile: src/AuthenticationService/Dockerfile
 
+
+  workoutservice:
+    image: ${DOCKER_REGISTRY-}workoutservice
+    build:
+      context: .
+      dockerfile: src/WorkOutService/Dockerfile
+

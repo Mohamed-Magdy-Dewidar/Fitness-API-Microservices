@@ -116,7 +116,7 @@ public class ProfileEndPoints : ICarterModule
 
             var command = new UpdateUserProfile.Command(
                 userId,
-                request.ActivityLevel ?? ActivityLevel.Beginer,
+                request.ActivityLevel ?? ActivityLevel.Beginner,
                 request.Height,
                 request.Weight,
                 request.PrimaryGoal

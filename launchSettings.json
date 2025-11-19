@@ -6,7 +6,8 @@
       "serviceActions": {
         "api.gateway": "StartDebugging",
         "userprofileservice": "StartDebugging",
-        "authenticationservice": "StartDebugging"
+        "authenticationservice": "StartDebugging",
+        "workoutservice": "StartDebugging"
       }
     }
   }

@@ -37,7 +37,7 @@ public static class GetUserProfile
                 profile.Weight,
                 profile.Height,
                 profile.PrimaryGoal,
-                profile.ActivityLevel,
+                profile.ActivityLevel ?? ActivityLevel.Beginner,
                 profile.CreatedOnUtc,
                 profile.MemberSince);
 

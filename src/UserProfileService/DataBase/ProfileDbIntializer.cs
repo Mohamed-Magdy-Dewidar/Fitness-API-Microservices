@@ -50,7 +50,7 @@ namespace UserProfileService.Data
                         Weight = 75.5,
                         Height = 180,
                         PrimaryGoal = "Build Muscle",
-                        ActivityLevel = ActivityLevel.Monster, // Use the Enum here!
+                        ActivityLevel = ActivityLevel.Advanced, // Use the Enum here!
                         MemberSince = DateTime.UtcNow.AddMonths(-6)
                     },
 
@@ -62,7 +62,7 @@ namespace UserProfileService.Data
                         UserName = "Omar Ahmed",
                         // Partial Data
                         DateOfBirth = new DateOnly(1998, 12, 1),
-                        ActivityLevel = ActivityLevel.Beginer,
+                        ActivityLevel = ActivityLevel.Intermediate,
                         MemberSince = DateTime.UtcNow.AddDays(-10)
                     },
 

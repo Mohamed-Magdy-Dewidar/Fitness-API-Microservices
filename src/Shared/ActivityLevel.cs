@@ -2,8 +2,7 @@
 
 public enum ActivityLevel
 {
-    Beginer = 0,
-    amatuerr = 1,
-    Monster = 2,
+    Beginner = 0,
+    Intermediate = 1,
+    Advanced = 2,
 }
-

@@ -23,6 +23,6 @@ public class UserProfile : BaseEntity<string>
 
     public string? PrimaryGoal { get; set; } 
 
-    public ActivityLevel ActivityLevel { get; set; }
+    public ActivityLevel? ActivityLevel { get; set; }
 }
 
