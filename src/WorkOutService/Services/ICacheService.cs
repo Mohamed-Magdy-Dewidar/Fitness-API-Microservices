@@ -5,6 +5,6 @@
 
 public interface IWorkOutCacheService
 {
-    public string GetWorkOutSessionKey(Guid sessionId);
+    public string GetWorkOutSessionKey(Guid sessionId, string userId);
     Task CreateWorkOutSessionCacheAsync(string sessionId,string userId,Guid workoutId,DateTime startedAtUtc,string status,DateTime deadlineUtc,TimeSpan expiry);
 }

@@ -31,7 +31,7 @@ public static class StartWorkOutSession
         private readonly IWorkOutCacheService _cacheService;
         private readonly IPublishEndpoint _publishEndpoint;
         private readonly IValidator<Command> _validator;
-        private readonly ILogger<Handler> _logger; // Added logger for detailed logs
+        private readonly ILogger<Handler> _logger;
 
         public Handler(Repository<Workout, Guid> workOutRepository,IWorkOutCacheService cacheService,IPublishEndpoint publishEndpoint,IValidator<Command> validator,ILogger<Handler> logger) 
         {
@@ -59,14 +59,15 @@ public static class StartWorkOutSession
                 return Result.Failure<StartWorkOutSessionResponse>(new Error("Workout.Not.Found", $"The workout with Id {request.WorkoutId} was not Found"));
             }
 
-            var sessionId = _cacheService.GetWorkOutSessionKey(Guid.NewGuid());
+            var sessionId = _cacheService.GetWorkOutSessionKey(Guid.NewGuid() , request.UserId);
             var startedAtUtc = DateTime.UtcNow;
             var deadlineUtc = startedAtUtc.AddMinutes(workout.DurationMinutes);
             var expiryTimeSpan = TimeSpan.FromMinutes(workout.DurationMinutes + 10); // 10 min grace period
 
             try
             {
-                await _cacheService.CreateWorkOutSessionCacheAsync(sessionId,request.UserId,request.WorkoutId,startedAtUtc,ActivityStatus.InProgress, deadlineUtc,expiryTimeSpan);
+                await _cacheService.CreateWorkOutSessionCacheAsync
+                    (sessionId,request.UserId,request.WorkoutId,startedAtUtc,ActivityStatus.InProgress, deadlineUtc,expiryTimeSpan);
             }
             catch (Exception ex)
             {

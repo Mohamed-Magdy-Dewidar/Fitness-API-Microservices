@@ -8,7 +8,7 @@ public class RedisCacheService(IConnectionMultiplexer connectionMultiplexer) : I
 {
     private readonly IDatabase _redis = connectionMultiplexer.GetDatabase();
 
-    public string GetWorkOutSessionKey(Guid sessionId) => $"workout_session:{sessionId}";
+    public string GetWorkOutSessionKey(Guid sessionId , string UserId) => $"workout_session:{sessionId}:user:{UserId}";
 
 
     public async Task CreateWorkOutSessionCacheAsync(string sessionId,string userId,Guid workoutId,DateTime startedAtUtc,string status,DateTime deadlineUtc,TimeSpan expiry)

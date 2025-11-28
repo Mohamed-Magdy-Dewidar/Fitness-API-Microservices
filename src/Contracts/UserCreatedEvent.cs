@@ -8,4 +8,3 @@ public record UserCreatedEvent
         public required  string UserName { get; init; }
         public DateTime CreatedOnUtc { get; set; }
 }
-

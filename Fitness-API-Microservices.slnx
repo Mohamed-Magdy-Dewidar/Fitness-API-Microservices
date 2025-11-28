@@ -3,6 +3,8 @@
     <Project Path="src/API.Gateway/API.Gateway.csproj" Id="22fab34b-5d4c-4810-b048-853a12b4f77a" />
     <Project Path="src/AuthenticationService/AuthenticationService.csproj" />
     <Project Path="src/Contracts/Contracts.csproj" />
+    <Project Path="src/NutritionService/NutritionService.csproj" Id="3efb53df-5018-4ea3-b69a-f7e75580e679" />
+    <Project Path="src/ProgressTrackingService/ProgressTrackingService.csproj" Id="d01773e9-3327-4902-9927-b0398512e902" />
     <Project Path="src/Shared/Shared.csproj" />
     <Project Path="src/UserProfileService/UserProfileService.csproj" />
     <Project Path="src/WorkOutService/WorkOutService.csproj" Id="f4e4bc84-100e-4851-b3bc-85b716360cd2" />

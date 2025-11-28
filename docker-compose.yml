@@ -25,3 +25,17 @@ services:
       context: .
       dockerfile: src/WorkOutService/Dockerfile
 
+
+  progresstrackingservice:
+    image: ${DOCKER_REGISTRY-}progresstrackingservice
+    build:
+      context: .
+      dockerfile: src/ProgressTrackingService/Dockerfile
+
+
+  nutritionservice:
+    image: ${DOCKER_REGISTRY-}nutritionservice
+    build:
+      context: .
+      dockerfile: src/NutritionService/Dockerfile
+

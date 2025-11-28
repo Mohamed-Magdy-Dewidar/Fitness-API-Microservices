@@ -7,7 +7,9 @@
         "api.gateway": "StartDebugging",
         "userprofileservice": "StartDebugging",
         "authenticationservice": "StartDebugging",
-        "workoutservice": "StartDebugging"
+        "workoutservice": "StartDebugging",
+        "progresstrackingservice": "StartDebugging",
+        "nutritionservice": "StartDebugging"
       }
     }
   }
