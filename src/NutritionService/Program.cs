@@ -10,6 +10,7 @@ using NutritionService.DataBase;
 using NutritionService.DataBase.Data;
 using NutritionService.DataBase.Repositorys;
 using NutritionService.Extensions;
+using StackExchange.Redis;
 using System.Reflection;
 using System.Text;
 
@@ -106,6 +107,15 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]!))
     };
 });
+
+
+
+// --- EXTERNAL SERVICES (REDIS) ---
+var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection");
+if (string.IsNullOrEmpty(redisConnectionString))
+    throw new ArgumentNullException("RedisConnection string is missing in configuration");
+builder.Services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redisConnectionString));
+
 
 builder.Services.AddAuthorization();
 
