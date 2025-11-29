@@ -352,7 +352,7 @@ cfg.UseInMemoryOutbox();
 ```
 
 #### Issue 5.2: Missing Idempotency in Consumers
-**Location:** `src/UserProfileService/Features/Profiles/UserPofileCreated.cs`
+**Location:** `src/UserProfileService/Features/Profiles/UserPofileCreated.cs` (Note: file name has typo - should be `UserProfileCreated.cs`)
 
 ```csharp
 public async Task Consume(ConsumeContext<UserCreatedEvent> context)
