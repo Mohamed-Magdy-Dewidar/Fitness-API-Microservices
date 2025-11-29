@@ -1,158 +1,281 @@
-Fitness-API-Microservices
+---
 
-This repository contains the backend microservices for the Elevate Fitness mobile application. The system is built using a .NET microservices architecture, with services communicating via a message broker and all public traffic routed through an API Gateway.
+# **Fitness API Microservices**
 
-View the project on GitHub: https://github.com/Mohamed-Magdy-Dewidar/Fitness-API-Microservices
+This repository contains the backend microservices for the **Elevate Fitness** mobile application.
+The system uses a **high-performance, event-driven .NET microservices architecture** with CQRS, caching, and asynchronous messaging.
 
-Technology Stack
+🔗 **GitHub Repository:**
+[https://github.com/Mohamed-Magdy-Dewidar/Fitness-API-Microservices](https://github.com/Mohamed-Magdy-Dewidar/Fitness-API-Microservices)
 
-.NET 9 (for all services)
+---
 
-ASP.NET Core Web API (for service endpoints)
+# 🚀 Overview
 
-Entity Framework Core (for data access)
+The **Elevate Fitness API** is designed to support:
 
-SQL Server (for all databases, run in Docker)
+* High-throughput user activity tracking
+* Personalized workout/nutrition content delivery
+* Efficient, scalable read/write separation
 
-RabbitMQ (for asynchronous messaging)
+This system solves real-world scaling challenges by separating **content/catalog services** (read-heavy) from **progress tracking services** (write-heavy).
 
-MassTransit (as the .NET abstraction layer for RabbitMQ)
+---
 
-Docker & Docker Compose (for containerization and development)
+# ⭐ Key Features
 
-JWT (JSON Web Tokens) (for stateless authentication)
+### **✓ Decoupled Microservices**
 
-API Gateway (YARP or Ocelot, as the single entry point)
+Services communicate asynchronously through **RabbitMQ**, improving resilience and reliability.
 
-Project Architecture
+### **✓ High Performance**
 
-The architecture follows a standard microservice pattern. A client (mobile app) makes all requests to a single API Gateway. The gateway is responsible for authenticating the request (validating the JWT) and routing it to the appropriate downstream service.
+Redis is used for:
 
-Services are decoupled and communicate with each other asynchronously using a "database-per-service" model and event-driven patterns. When a significant event occurs (like a new user registering), the service publishes an event to a RabbitMQ message bus. Other services (like the UserProfileService or NotificationsService) subscribe to these events and react accordingly.
+* Rate limiting
+* Active workout session tracking
+* Read-through caching
 
-Services Overview
+### **✓ Transactional Integrity**
 
-api.gateway: The single entry point for all client requests. Handles routing and JWT validation.
+A fully implemented **Transactional Outbox Pattern** guarantees atomic consistency between:
 
-authenticationservice: Manages user registration, login, and the creation of JWTs.
+* SQL Server writes
+* RabbitMQ event publishing
 
-userprofileservice: Manages all user data (weight, height, goals, age, etc.).
+### **✓ Flexible Data Modeling**
 
-workoutcatalogservice: Read-only library of all exercises and workout plans.
+Workout logs use the **Table-Per-Hierarchy (TPH)** pattern for:
 
-nutritioncatalogservice: Read-only library of all food, recipes, and nutrition data.
+* Weight workouts
+* Cardio workouts
+* Timed sessions
 
-usertrainingtrackingservice: "Write" service for logging user activity (completed workouts, meals eaten).
+### **✓ CQRS Architecture**
 
-analyticsservice: "Read" service that consumes tracking events to build user stats and dashboards.
+Clear separation of responsibilities using:
 
-notificationsservice: Handles sending emails and push notifications.
+* Command Handlers
+* Query Handlers
+* MediatR Pipeline
 
-Getting Started
+---
 
-You can run this project in two ways. Hybrid Development is recommended for day-to-day coding.
+# 🧱 Architecture & Technology Stack
 
-Prerequisites
+The system consists of **8 microservices**, all accessed through a single API Gateway.
 
-.NET 9 SDK
+## **Tech Stack**
 
-Docker Desktop
+| Component        | Technology                        |
+| ---------------- | --------------------------------- |
+| Framework        | **.NET 9 (ASP.NET Core Web API)** |
+| Database         | SQL Server 2022 (DB-per-Service)  |
+| Messaging        | RabbitMQ using MassTransit        |
+| Cache            | Redis                             |
+| API Gateway      | YARP                              |
+| ORM              | Entity Framework Core             |
+| Validation       | FluentValidation                  |
+| Containerization | Docker & Docker Compose           |
 
-A code editor like Visual Studio 2022 or VS Code.
+---
 
-A database management tool like Azure Data Studio or SSMS.
+# 🗂️ Service Responsibilities
 
-Option 1: Hybrid Development (Recommended)
+| Service                       | Description                         | Storage            |
+| ----------------------------- | ----------------------------------- | ------------------ |
+| **API Gateway**               | Routes requests, validates JWTs     | —                  |
+| **Authentication**            | Registration, login, JWT issuance   | SQL Server         |
+| **User Profile**              | User info, settings, profile images | SQL Server         |
+| **Workout Service**           | Read-only workout catalog           | SQL Server + Redis |
+| **Progress Tracking**         | Logs workouts, meals, metrics       | SQL Server + Redis |
+| **Nutrition Service**         | Read-only meals & recipes           | SQL Server         |
+| **FCE (Fitness Calc Engine)** | BMR, TDEE, calorie targets          | SQL Server         |
+| **Smart Coach**               | AI-driven recommendations           | —                  |
 
-This workflow is the easiest for development and debugging.
+---
 
-Infrastructure (SQL Server, RabbitMQ) runs in Docker.
+# 🔌 Event-Driven Workflows
 
-.NET Services (Auth, Profile, Gateway) run on your local machine (via Visual Studio or dotnet run).
+## **1. Workout Session Flow**
 
-1. Start Infrastructure:
-Run the docker-compose.infra.yml file. This starts only SQL Server and RabbitMQ.
+A hybrid synchronous + asynchronous workflow ensures speed + durability.
 
+### **Start Session**
+
+```
+POST /workouts/{id}/start
+```
+
+Workout Service:
+
+* Validates workout
+* Returns a **SessionId** (cached in Redis)
+
+### **Publish**
+
+Workout Service publishes:
+
+```
+WorkoutSessionStartedEvent
+```
+
+### **Consume**
+
+Progress Tracking Service:
+
+* Saves permanent ActiveSession record in SQL
+
+### **Finish Session**
+
+```
+POST /progress/workouts
+```
+
+Progress Tracking Service:
+
+* Logs workout
+* Publishes `WorkoutCompletedEvent` for analytics
+
+---
+
+# 🛠️ Getting Started
+
+You can run the system in **two different modes**.
+
+---
+
+# **Option 1: Hybrid Development (Recommended)**
+
+Run infrastructure in Docker and run .NET code locally for the best debugging experience.
+
+---
+
+## **1. Start Required Infrastructure**
+
+```sh
 docker-compose -f docker-compose.infra.yml up -d
+```
 
+This launches:
 
-2. Configure Your Services:
-Ensure your appsettings.Development.json file in each .NET service points to localhost and the correct ports.
+* SQL Server (port 1433)
+* RabbitMQ (port 5672)
 
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost,1433;Database=ElevateAuthDb;User Id=sa;Password=Strong_password_123!;TrustServerCertificate=True"
-  },
-  "RabbitMQ": {
-    "Host": "localhost"
-  }
+---
+
+## **2. Update Configuration**
+
+Ensure every service's `appsettings.Development.json` contains:
+
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Server=localhost,1433;User Id=sa;Password=YourPassword!;"
+},
+"RabbitMQ": {
+  "Host": "localhost"
 }
+```
 
+---
 
-(Remember to use the correct Database name for each service, e.g., ElevateProfileDb for UserProfileService).
+## **3. Apply Migrations**
 
-3. Run Migrations:
-Open a terminal for each service that has a database (AuthenticationService, UserProfileService, etc.) and run your migrations.
-
-# Navigate to the service folder
+```sh
 cd src/AuthenticationService
-
-# Run the EF Core commands
-dotnet ef migrations add InitialCreate
 dotnet ef database update
+```
 
+Repeat for any service that uses SQL Server.
 
-4. Run Your .NET Services:
-Open the .sln file in Visual Studio, configure your startup projects (to launch the Gateway, Auth, and Profile services), and press F5.
+---
 
-Option 2: Full Docker (Integration Testing)
+## **4. Run the Services Locally**
 
-This workflow runs everything inside Docker. It's best for testing the complete, deployed system.
+Open the solution:
 
-1. Run Docker Compose:
-Use your main docker-compose.yml file. The environment variables in this file will automatically override your appsettings.json to use the Docker container names (e.g., Server=fitness-db).
+```
+Fitness-API-Microservices.sln
+```
 
-# --build: Rebuilds your .NET images
-# -d: Runs in detached mode
+Then press **F5** in Visual Studio or run:
+
+```sh
+dotnet run
+```
+
+---
+
+# **Option 2: Full Docker Mode (Integration Testing)**
+
+Runs **all microservices + databases + gateway** inside containers.
+
+### Build & run everything:
+
+```sh
 docker-compose up --build -d
+```
 
+### Access endpoints:
 
-2. Wait for Services:
-Wait 30-60 seconds for all services to start and for the fitness-db health check to pass.
+| Component                   | URL                                                            |
+| --------------------------- | -------------------------------------------------------------- |
+| **API Gateway**             | [http://localhost:8080](http://localhost:8080)                 |
+| **Auth Service Swagger**    | [http://localhost:5001/swagger](http://localhost:5001/swagger) |
+| **Profile Service Swagger** | [http://localhost:5002/swagger](http://localhost:5002/swagger) |
+| **Progress Tracking**       | [http://localhost:5003/swagger](http://localhost:5003/swagger) |
 
-3. Test Your Endpoints:
-Your entire application is now running and accessible.
+---
 
-Service Endpoints (Development)
+# 📁 Project Structure
 
-When running in Full Docker mode:
-
-API Gateway: http://localhost:8080/
-
-Auth Service Swagger: http://localhost:5001/swagger
-
-Profile Service Swagger: http://localhost:5002/swagger
-
-RabbitMQ Dashboard: http://localhost:15672 (User: guest, Pass: guest)
-
-SQL Server (for SSMS): localhost,1433 (User: sa, Pass: Strong_password_123!)
-
-(Note: When running in Hybrid mode, your .NET services will be on their Visual Studio ports, e.g., http://localhost:5001/swagger)
-
-Project Structure
-
-/Fitness-API-Microservices/
-├── .containers/              # (Empty folder for local bind mounts if needed)
+```
+/Fitness-API-Microservices
 ├── src/
-│   ├── API.Gateway/
-│   ├── AuthenticationService/
-│   ├── UserProfileService/
-│   ├── ... (other services)
-│   ├── ElevateFitness.Contracts/ # Shared DTOs and MassTransit Events
-│   └── Shared/                   # Shared libraries
-├── .dockerignore
-├── .gitignore
-├── docker-compose.yml            # For "Full Docker" mode
-├── docker-compose.infra.yml      # For "Hybrid" development
-├── Fitness-API-Microservices.sln
-└── README.md                     # This file
+│   ├── API.Gateway/              
+│   ├── AuthenticationService/    
+│   ├── UserProfileService/       
+│   ├── WorkOutService/           
+│   ├── ProgressTrackingService/  
+│   ├── NutritionService/         
+│   ├── Contracts/                # Shared event definitions
+│   └── Shared/                   # Shared kernel utilities
+├── docker-compose.yml            # Full stack
+├── docker-compose.infra.yml      # Infrastructure only
+└── README.md
+```
+
+---
+
+# 📜 Recent Improvements
+
+### ✓ Transactional Outbox Pattern
+
+Ensures event publishing and SQL writes are always consistent.
+
+### ✓ Redis Caching
+
+Used for:
+
+* Active session state
+* Read-through caching for workout catalog
+* Rate limiting
+
+### ✓ TPH Model
+
+Allows different workout types to be stored in a single table using inheritance.
+
+---
+
+# 🎉 Final Notes
+
+This system is designed to be:
+
+* **Fast**
+* **Scalable**
+* **Event-driven**
+* **Developer friendly**
+
+Feel free to fork, clone, or contribute!
+
+---
