@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using System.Security.Claims;
+using System.Text;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,8 +34,32 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("UserRatePolicy", httpContext =>
+    {
+        var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-// --- 3. ADD YARP SERVICES ---
+        bool isAuthenticated = !string.IsNullOrEmpty(userId);
+
+        string partitionKey = isAuthenticated
+            ? $"user:{userId}"
+            : $"ip:{httpContext.Connection.RemoteIpAddress}";
+
+        int limit = isAuthenticated ? 20 : 10;
+
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey,
+            key => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = limit,
+                Window = TimeSpan.FromSeconds(5),
+                QueueLimit = 0,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+            });
+    });
+});
+
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
@@ -47,34 +73,36 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
+
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+
+app.UseRateLimiter();   
 app.UseAuthentication();
 app.UseAuthorization();
 
-
-
-
-
-
-// Public Status Check: GET /health
 app.MapGet("/health", () => Results.Ok(new
 {
     Status = "Gateway is operational",
     Time = DateTime.UtcNow
 }))
+.RequireRateLimiting("UserRatePolicy")
 .WithName("GetGatewayStatus");
 
 
-// Authenticated Claims Check: GET /status/claims
+
 app.MapGet("/status/claims", (ClaimsPrincipal user) =>
 {
     var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
-    var roles = user.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+    var roles = user.Claims
+        .Where(c => c.Type == ClaimTypes.Role)
+        .Select(c => c.Value)
+        .ToList();
 
     return Results.Ok(new
     {
@@ -84,11 +112,11 @@ app.MapGet("/status/claims", (ClaimsPrincipal user) =>
         Message = "JWT token successfully validated by the Gateway."
     });
 })
-.RequireAuthorization() 
+.RequireAuthorization()
+.RequireRateLimiting("UserRatePolicy")
 .WithName("GetAuthClaims");
 
-
-app.MapReverseProxy();
-
+app.MapReverseProxy()
+   .RequireRateLimiting("UserRatePolicy");
 
 app.Run();
